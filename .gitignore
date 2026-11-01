@@ -1,0 +1,39 @@
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+*.code-workspace
+.DS_Store
+Thumbs.db
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+environment.production.ts
+
+# .NET
+bin/
+obj/
+TestResults/
+
+# Python venv (AWS Syndicate)
+syndicate_venv/
+.venv/
+
+# Syndicate build output and logs
+.syndicate/
+bundles/
+logs/
+*.log
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+
+# Local env
+.env
+.env.local

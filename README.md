@@ -38,6 +38,11 @@
 | Owner бачить свої страви в «My Pre-Order»; при Submit зберігається знімок його замовлення, а в замовлення ресторану додаються лише кошики гостей | `GuestSessionService`, `GroupReservationService` (бекенд) |
 | Lambda `api-handler`: 128 → 1024 МБ. Холодний старт 0,43 с, перший запит 0,74 с замість 6,7–7,6 с | `lambda_config.json` |
 
+### Як це виглядає
+| Меню: скільки вже в кошику, `−` / `+` | Лічильник на іконці кошика | Кошик (25 = 16 + 5 + 4) |
+|---|---|---|
+| ![Menu](docs/screenshots/menu-quantity-stepper.png) | ![Cart badge](docs/screenshots/cart-badge.png) | ![Cart](docs/screenshots/cart.png) |
+
 ### Як перевірити
 1. Увійти як Customer, забронювати столик, натиснути **Pre-order** на картці бронювання.
 2. Додати страву: на картці з'явиться `− 1 in cart +`, на іконці кошика — лічильник.

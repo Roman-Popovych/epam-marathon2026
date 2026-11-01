@@ -58,8 +58,10 @@
           <app-dish-card
             [dish]="dish"
             [preOrderEnabled]="isPreOrderEnabled"
+            [quantity]="cartQuantities().get(dish.id) ?? 0"
             (dishClicked)="openModal(dish)"
-            (preOrderClicked)="addDishToCart(dish)"
+            (preOrderClicked)="changeDishQuantity(dish, 1)"
+            (quantityChange)="changeDishQuantity(dish, $event)"
             maxWidth="288px"
           ></app-dish-card>
         }

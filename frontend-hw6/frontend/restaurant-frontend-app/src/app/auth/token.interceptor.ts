@@ -11,6 +11,10 @@ import { AuthenticationService } from './services/authentication.service';
 import { SKIP_ERROR_TOAST } from './skip-error-toast.context';
 import { getServerErrorMessage } from '../shared/helpers/http-error-helpers';
 
+function isGuestFlowRequest(url: string): boolean {
+  return url.includes('/guest/') && !url.includes('/guest/groups/');
+}
+
 export const tokenInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
   next: HttpHandlerFn
@@ -20,10 +24,15 @@ export const tokenInterceptor: HttpInterceptorFn = (
   // IMPORTANT: do not modify Guest endpoints at all.
   // Guest flow uses a different token (guest session token) and we must not touch the body.
   // Otherwise we break POST /guest/sessions payload.
-  if (req.url.includes('/guest/')) {
+  // /guest/groups/... is the owner's side of the group pre-order: it needs the user's token like any other call.
+  if (isGuestFlowRequest(req.url)) {
     return next(req).pipe(
       catchError((error: HttpErrorResponse) => {
         console.log(error);
+
+        if (req.context.get(SKIP_ERROR_TOAST)) {
+          return throwError(() => error);
+        }
 
         let errorMessage = 'An unexpected error occurred.';
         if (error.error && typeof error.error === 'string') {

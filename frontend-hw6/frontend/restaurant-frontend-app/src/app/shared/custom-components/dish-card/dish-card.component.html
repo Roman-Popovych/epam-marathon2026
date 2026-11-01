@@ -21,9 +21,32 @@
         </div>
       </div>
       @if (preOrderEnabled()) {
-        <app-custom-button size="small" fullWidth [disabled]="isUnavailable()" (click)="preOrderClicked.emit()">
-          Pre-Order
-        </app-custom-button>
+        @if (quantity() > 0) {
+          <div class="quantity-stepper" role="group" [attr.aria-label]="dish().name + ' in pre-order'">
+            <button
+              type="button"
+              class="stepper-button"
+              [attr.aria-label]="'Remove one ' + dish().name"
+              (click)="$event.stopPropagation(); quantityChange.emit(-1)"
+            >
+              −
+            </button>
+            <span class="stepper-value" aria-live="polite">{{ quantity() }} in cart</span>
+            <button
+              type="button"
+              class="stepper-button"
+              [disabled]="isUnavailable()"
+              [attr.aria-label]="'Add one more ' + dish().name"
+              (click)="$event.stopPropagation(); quantityChange.emit(1)"
+            >
+              +
+            </button>
+          </div>
+        } @else {
+          <app-custom-button size="small" fullWidth [disabled]="isUnavailable()" (click)="preOrderClicked.emit()">
+            Pre-Order
+          </app-custom-button>
+        }
       }
     </div>
     <ng-content select="[dish-footer]"></ng-content>

@@ -169,7 +169,8 @@ public class GroupReservationService(
             throw new GroupReservationExpiredException();
 
         List<GuestSession> sessions = await guestSessionRepository.GetAllByGroupReservationIdAsync(groupReservationId);
-        List<GuestSession> submittedSessions = sessions.Where(s => s.IsSubmitted).ToList();
+        // The owner's dishes are already in the order, so only guest sessions are merged into it.
+        List<GuestSession> submittedSessions = sessions.Where(s => s.IsSubmitted && !s.IsOwnerSession).ToList();
 
         if (submittedSessions.Count == 0)
             throw new ValidationException("There are no submitted guest sessions in this group reservation.");
@@ -187,6 +188,11 @@ public class GroupReservationService(
             ?? throw new ValidationException($"Order for reservation {reservationId} was not found.");
 
         order.Dishes ??= [];
+
+        // Keep what the owner ordered before the guests' dishes are merged into the order.
+        List<OrderItem> ownerDishes = order.Dishes
+            .Select(d => new OrderItem { DishId = d.DishId, Quantity = d.Quantity, State = d.State })
+            .ToList();
 
         foreach (SubmittedDishResponse dish in mergedDishes)
         {
@@ -209,6 +215,19 @@ public class GroupReservationService(
 
         order.Status = OrderStatus.SubmittedByCustomer;
         await orderRepository.SaveOrderAsync(order);
+
+        GuestSession ownerSession = sessions.FirstOrDefault(s => s.IsOwnerSession) ?? new GuestSession
+        {
+            Id = Guid.NewGuid().ToString(),
+            GroupReservationId = groupReservationId,
+            GuestName = "Owner",
+            Dishes = [],
+            IsOwnerSession = true,
+            OwnerUserId = userId,
+        };
+        ownerSession.Dishes = ownerDishes;
+        ownerSession.IsSubmitted = true;
+        await guestSessionRepository.SaveAsync(ownerSession);
 
         group.Status = GroupReservationStatus.Submitted;
         await groupReservationRepository.SaveGroupReservationAsync(group);

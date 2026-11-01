@@ -8,11 +8,12 @@ import { interval, Subscription } from 'rxjs';
 import { NotificationsService } from '@app/services/notifications/notifications.service';
 import { Notification } from '@app/models/notifications/notification.model';
 import { CartComponent } from '@app/components/cart/cart.component';
+import { CartButtonComponent } from '@app/shared/custom-components/cart-button/cart-button.component';
 import { GuestPreorderStore } from '@app/pages/guest-pre-order-page/state/guest-preorder.store';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterLink, RouterLinkActive, AsyncPipe, CartComponent, CommonModule],
+  imports: [RouterLink, RouterLinkActive, AsyncPipe, CartComponent, CartButtonComponent, CommonModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
   changeDetection: ChangeDetectionStrategy.Eager,

@@ -164,6 +164,14 @@
         } @else if (role() === Roles.CUSTOMER) {
           <button
             type="button"
+            class="button button--secondary button--large"
+            (click)="openGroupPreOrder()"
+          >
+            Group Pre-Order
+          </button>
+
+          <button
+            type="button"
             class="button button--primary button--large"
             (click)="onPreOrder()"
           >

@@ -106,3 +106,51 @@
     flex-shrink: 0;
   }
 }
+
+.quantity-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 4px;
+  border: 1px solid color.$green-600;
+  border-radius: 8px;
+  box-sizing: border-box;
+  animation: stepper-appear 0.2s ease-out;
+}
+
+.stepper-button {
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  line-height: 1;
+  color: color.$green-600;
+  background: color.$neutral-0;
+  border: 1px solid color.$green-600;
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    color: color.$neutral-0;
+    background: color.$green-600;
+  }
+
+  &:disabled {
+    color: color.$neutral-400;
+    border-color: color.$neutral-200;
+    cursor: not-allowed;
+  }
+}
+
+.stepper-value {
+  font-weight: 600;
+  color: color.$green-800;
+}
+
+@keyframes stepper-appear {
+  from {
+    transform: scale(0.95);
+    opacity: 0.5;
+  }
+}

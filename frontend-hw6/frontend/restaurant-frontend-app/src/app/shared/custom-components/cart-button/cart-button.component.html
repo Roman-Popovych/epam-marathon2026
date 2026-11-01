@@ -1,0 +1,20 @@
+<button
+  type="button"
+  class="icon-button cart-button"
+  [class.icon-button--small]="size() === 'small'"
+  [class.icon-button--large]="size() === 'large'"
+  [attr.aria-label]="ariaLabel()"
+  (click)="cartClick.emit()"
+>
+  @for (key of bumpKeys(); track key) {
+    <span class="cart-icon" [class.bump]="key > 0">
+      <img src="assets/svg/cart-empty.svg" alt="" class="action-icon" />
+      @if (count() > 0) {
+        <span class="cart-badge" aria-hidden="true">{{ badge() }}</span>
+      }
+    </span>
+  }
+  @if (showLabel()) {
+    <h5>Cart</h5>
+  }
+</button>

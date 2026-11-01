@@ -60,4 +60,36 @@ describe('tokenInterceptor', () => {
     expect(toastService.error).not.toHaveBeenCalled();
     expect(receivedStatus).toBe(400);
   });
+
+  describe('guest endpoints', () => {
+    beforeEach(() => {
+      TestBed.inject(AuthenticationService).getTokens = () => ({ idToken: 'id-token' }) as never;
+    });
+
+    it('guest flow (/guest/sessions/...) is sent without the user token', () => {
+      http.get('https://test.api/guest/sessions/gs-1').subscribe();
+
+      const req = httpMock.expectOne('https://test.api/guest/sessions/gs-1');
+      expect(req.request.headers.has('Authorization')).toBeFalse();
+      req.flush({});
+    });
+
+    it('owner group endpoints (/guest/groups/...) get the user token', () => {
+      http.get('https://test.api/guest/groups/grp-1/sessions').subscribe();
+
+      const req = httpMock.expectOne('https://test.api/guest/groups/grp-1/sessions');
+      expect(req.request.headers.get('Authorization')).toBe('Bearer id-token');
+      req.flush({});
+    });
+
+    it('guest flow respects SKIP_ERROR_TOAST', () => {
+      http
+        .get('https://test.api/guest/sessions/gs-1', { context: new HttpContext().set(SKIP_ERROR_TOAST, true) })
+        .subscribe({ error: () => undefined });
+
+      httpMock.expectOne('https://test.api/guest/sessions/gs-1').flush({}, { status: 500, statusText: 'Error' });
+
+      expect(toastService.error).not.toHaveBeenCalled();
+    });
+  });
 });

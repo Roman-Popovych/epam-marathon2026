@@ -17,9 +17,13 @@ export class DishCardComponent {
   readonly dish = input.required<DishListResponse>();
   readonly maxWidth = input('');
   readonly preOrderEnabled = input(false);
+  /** How many portions of this dish are already in the pre-order. */
+  readonly quantity = input(0);
 
   readonly dishClicked = output<void>();
   readonly preOrderClicked = output<void>();
+  /** +1 / −1 from the quantity stepper. */
+  readonly quantityChange = output<number>();
 
   readonly dishStateLabel = computed(() => {
     const state = this.dish().state;

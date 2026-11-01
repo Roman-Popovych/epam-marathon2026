@@ -1,4 +1,4 @@
-import {Component, OnInit, ChangeDetectionStrategy, inject} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy, computed, inject, signal} from '@angular/core';
 import { DishCardComponent } from '@app/shared/custom-components/dish-card/dish-card.component';
 import { DishesService } from '@app/services/dishes/dishes.service';
 import { DishListResponse } from '@app/models/dishes/dish-list-response.model';
@@ -8,7 +8,7 @@ import { DishSort } from '@app/models/enums/dish-sort.model';
 import { DishType } from '@app/models/enums/dish-type.model';
 import { DishSortingLabels, DishTypeLabels } from '@app/shared/mappers/dish-enum.mapper';
 import { DishModalComponent } from '@app/components/dish-modal/dish-modal.component';
-import { PreOrdersService } from '@app/services/pre-orders/pre-orders.service';
+import { CartStore } from '@app/services/pre-orders/cart.store';
 import {ToastService} from '@app/services/toast/toast.service';
 
 @Component({
@@ -46,7 +46,14 @@ export class MenuPageComponent implements OnInit {
   private readonly dishesService = inject(DishesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private  readonly orderService = inject(PreOrdersService);
+  private readonly cartStore = inject(CartStore);
+
+  private readonly cartReservationId = signal<string | null>(null);
+  /** dishId → portions already in the pre-order of this reservation. */
+  readonly cartQuantities = computed(() => {
+    const reservationId = this.cartReservationId();
+    return reservationId ? this.cartStore.quantitiesFor(reservationId) : new Map<string, number>();
+  });
 
   ngOnInit(): void {
     this.route.queryParams.subscribe((params) => {
@@ -55,6 +62,8 @@ export class MenuPageComponent implements OnInit {
       if (this.isPreOrderEnabled) {
         this.preOrderReservationId = params['reservationId'];
         this.preOrderReservationLabel = params['reservationLabel'];
+        this.cartReservationId.set(this.preOrderReservationId ?? null);
+        this.cartStore.load();
         if (!this.preOrderReservationId) {
           console.error('Pre-order is enabled but no reservation ID provided.');
           this.toast.error('Pre-order is enabled but no reservation ID provided.', 'Error');
@@ -138,16 +147,9 @@ export class MenuPageComponent implements OnInit {
     this.selectedDish = null;
   }
 
-  addDishToCart(dish: DishListResponse): void {
-    this.orderService
-      .addDishToPreOrderByReservationId(this.preOrderReservationId!, dish, 1)
-      .subscribe({
-        next: () => {
-          this.toast.success('Dish added to cart successfully!', 'Success');
-        },
-        error: (err) => {
-          this.toast.error((err as Error).message, 'Error');
-        },
-      });
+  changeDishQuantity(dish: DishListResponse, delta: number): void {
+    if (this.preOrderReservationId) {
+      this.cartStore.changeQuantity(this.preOrderReservationId, dish, delta);
+    }
   }
 }

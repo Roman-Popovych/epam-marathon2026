@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 
 import { Order } from '@app/models/orders/order.model';
 import { PreOrdersService } from '@app/services/pre-orders/pre-orders.service';
+import { CartStore } from '@app/services/pre-orders/cart.store';
 
 import { CancelOrderModalComponent } from './components/cancel-order-modal/cancel-order-modal.component';
 import { NotSubmittedOrderComponent } from './components/not-submitted-order/not-submitted-order.component';
@@ -35,6 +36,8 @@ import { SubmittedOrderComponent } from './components/submitted-order/submitted-
 export class CartComponent implements OnInit {
   private readonly preOrdersService =
     inject(PreOrdersService);
+
+  private readonly cartStore = inject(CartStore);
 
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -283,6 +286,7 @@ export class CartComponent implements OnInit {
       .subscribe({
         next: (orders) => {
           this.orders.set(orders);
+          this.cartStore.orders.set(orders);
         },
         error: (error) => {
           console.error('Error loading orders:', error);

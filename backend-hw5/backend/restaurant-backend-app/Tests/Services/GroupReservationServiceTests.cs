@@ -294,6 +294,34 @@ public class GroupReservationServiceTests
 
     [Theory]
     [AutoData]
+    public async Task SubmitGroupPreOrderAsync_OwnerSession_KeepsSnapshotOfOwnerOrderAndIsNotMerged(
+        string userId,
+        GroupReservation group,
+        Reservation reservation,
+        Order order)
+    {
+        order.Dishes = [new OrderItem { DishId = "dish1", Quantity = 7 }];
+
+        var owner = CreateSession(true, ("dish5", 9));
+        owner.IsOwnerSession = true;
+        var sessions = new List<GuestSession> { owner, CreateSession(true, ("dish2", 1)) };
+
+        SetupSubmit(userId, group, reservation, sessions, order);
+
+        var result = await _service.SubmitGroupPreOrderAsync(userId, group.GroupReservationId, reservation.Id);
+
+        Assert.DoesNotContain(result, d => d.DishId == "dish5");
+        Assert.Equal(7, order.Dishes.Single(d => d.DishId == "dish1").Quantity);
+        Assert.Equal(1, order.Dishes.Single(d => d.DishId == "dish2").Quantity);
+
+        var ownerDish = Assert.Single(owner.Dishes);
+        Assert.Equal("dish1", ownerDish.DishId);
+        Assert.Equal(7, ownerDish.Quantity);
+        _guestSessionRepositoryMock.Verify(r => r.SaveAsync(owner), Times.Once);
+    }
+
+    [Theory]
+    [AutoData]
     public async Task SubmitGroupPreOrderAsync_ValidInput_MergesSubmittedSessionsIntoOrder(
         string userId,
         GroupReservation group,

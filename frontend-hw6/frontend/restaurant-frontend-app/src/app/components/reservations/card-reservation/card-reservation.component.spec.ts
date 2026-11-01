@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { CardReservationComponent } from './card-reservation.component';
 import { API_BASE_URL } from '@app/shared/config/api-base-url.token';
 import { ReservationCustomer, ReservationStatusCustomer } from '@app/models/reservations/reservation.model';
@@ -35,5 +35,17 @@ describe('CardReservationComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('customer: «Group Pre-Order» opens the owner screen of this reservation', () => {
+    const router = TestBed.inject(Router);
+    const navigate = spyOn(router, 'navigate').and.resolveTo(true);
+
+    const button = [...(fixture.nativeElement as HTMLElement).querySelectorAll('button')].find(
+      (item) => item.textContent?.trim() === 'Group Pre-Order',
+    );
+    button?.click();
+
+    expect(navigate).toHaveBeenCalledWith(['/reservations', 'res-1', 'group-order']);
   });
 });

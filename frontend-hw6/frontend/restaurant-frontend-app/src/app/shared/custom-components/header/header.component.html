@@ -51,10 +51,7 @@
       @if (user()?.role === Roles.CUSTOMER && !isGuestPreorderRoute) {
         @if (!showCart()) {
           <div>
-            <button type="button" class="icon-button icon-button--large" (click)="toggleCart()">
-              <img src="assets/svg/cart-empty.svg" alt="cart icon" class="action-icon" />
-              <h5> Cart</h5>
-            </button>
+            <app-cart-button size="large" [showLabel]="true" (cartClick)="toggleCart()" />
           </div>
         }
 
@@ -144,13 +141,7 @@
     }
 
     @if (user()?.role === Roles.CUSTOMER && !isGuestPreorderRoute) {
-      <button class="icon-button icon-button--small" type="button"  (click)="toggleCart()">
-        <img
-          [src]="'assets/svg/cart-empty.svg'"
-          alt="cart icon"
-          class="action-icon"
-        />
-      </button>
+      <app-cart-button (cartClick)="toggleCart()" />
     }
 
     @if (user()?.role === Roles.WAITER) {
